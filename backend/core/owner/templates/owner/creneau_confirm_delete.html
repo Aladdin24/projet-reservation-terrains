@@ -1,0 +1,29 @@
+<!-- owner/templates/owner/creneau_confirm_delete.html -->
+{% extends 'owner/base.html' %}
+
+{% block title %}Supprimer un créneau{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow">
+      <div class="card-header bg-danger text-white">
+        <h4 class="mb-0">Confirmer la suppression</h4>
+      </div>
+      <div class="card-body">
+        <p>Êtes-vous sûr de vouloir supprimer le créneau suivant ?</p>
+        <ul>
+          <li><strong>Terrain :</strong> {{ terrain.nom }}</li>
+          <li><strong>Date :</strong> {{ creneau.date }}</li>
+          <li><strong>Heure :</strong> {{ creneau.heure_debut }} – {{ creneau.heure_fin }}</li>
+        </ul>
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+          <a href="{% url 'owner:creneau_list' terrain.id %}" class="btn btn-secondary">Annuler</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

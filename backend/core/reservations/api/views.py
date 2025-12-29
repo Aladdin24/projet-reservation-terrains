@@ -83,7 +83,9 @@ def cancel_reservation(request, reservation_id):
     # Vérifier si la date du créneau est déjà passée
     creneau = reservation.creneau
     now = timezone.now()
-    creneau_datetime = datetime.combine(creneau.date, creneau.heure_debut)
+    creneau_datetime = timezone.make_aware(
+    datetime.combine(creneau.date, creneau.heure_debut)
+    )
     if creneau_datetime < now:
         return Response(
             {"error": "Vous ne pouvez pas annuler une réservation passée"},

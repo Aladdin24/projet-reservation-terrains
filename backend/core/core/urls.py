@@ -9,7 +9,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     
     # Web interfaces
-    # path('owner/', include('owner.urls')),
+    path('owner/', include('owner.urls')),
     # path('admin-panel/', include('admin_custom.urls')),
     
     # API

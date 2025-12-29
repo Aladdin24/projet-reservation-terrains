@@ -28,6 +28,11 @@ class CreneauHoraire(models.Model):
 
     class Meta:
         unique_together = ('terrain', 'date', 'heure_debut')
+        verbose_name = "Créneau Horaire"
+        verbose_name_plural = "Créneaux Horaires"
+
+    def __str__(self):
+        return f"{self.terrain.nom} - {self.date} {self.heure_debut}-{self.heure_fin}"
 
 class Evaluation(models.Model):
     terrain = models.ForeignKey(Terrain, related_name='evaluations', on_delete=models.CASCADE)
