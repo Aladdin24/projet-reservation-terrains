@@ -13,6 +13,7 @@ from terrains.models import Terrain, CreneauHoraire
 from reservations.models import Reservation
 from datetime import timedelta
 from django.db import transaction
+from calendar import weekday, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
 
 class OwnerLoginForm(forms.Form):
     telephone = forms.CharField(max_length=15)
@@ -175,45 +176,131 @@ def creneau_delete(request, terrain_id, creneau_id):
         'terrain': terrain
     })
 
+
 @login_required
 def creneau_duplicate(request, terrain_id, creneau_id):
     terrain = get_object_or_404(Terrain, pk=terrain_id, proprietaire=request.user)
     original_creneau = get_object_or_404(CreneauHoraire, pk=creneau_id, terrain=terrain)
 
+    # Mapping jour → numéro (lundi=0, dimanche=6)
+    JOURS = [
+        ('lundi', 'Lundi', 0),
+        ('mardi', 'Mardi', 1),
+        ('mercredi', 'Mercredi', 2),
+        ('jeudi', 'Jeudi', 3),
+        ('vendredi', 'Vendredi', 4),
+        ('samedi', 'Samedi', 5),
+        ('dimanche', 'Dimanche', 6),
+    ]
+
     if request.method == 'POST':
-        try:
-            nb_jours = int(request.POST.get('nb_jours', 7))
-            if nb_jours < 1 or nb_jours > 30:
-                messages.error(request, "Le nombre de jours doit être entre 1 et 30.")
-                return redirect('owner:creneau_duplicate', terrain_id=terrain.id, creneau_id=original_creneau.id)
-        except (ValueError, TypeError):
-            messages.error(request, "Nombre de jours invalide.")
-            return redirect('owner:creneau_duplicate', terrain_id=terrain.id, creneau_id=original_creneau.id)
+        frequence = request.POST.get('frequence', 'quotidien')
+        duree = int(request.POST.get('duree', 7))
+        jours_selectionnes = request.POST.getlist('jours')
 
-        with transaction.atomic():
-            created_count = 0
-            for i in range(1, nb_jours + 1):
+        if frequence == 'quotidien':
+            dates_a_creer = []
+            for i in range(1, duree + 1):
                 new_date = original_creneau.date + timedelta(days=i)
-                # Éviter les doublons
-                if not CreneauHoraire.objects.filter(
-                    terrain=terrain,
-                    date=new_date,
-                    heure_debut=original_creneau.heure_debut
-                ).exists():
-                    CreneauHoraire.objects.create(
-                        terrain=terrain,
-                        date=new_date,
-                        heure_debut=original_creneau.heure_debut,
-                        heure_fin=original_creneau.heure_fin,
-                        tarif=original_creneau.tarif,
-                        disponible=True
-                    )
-                    created_count += 1
+                dates_a_creer.append(new_date)
+        else:  # hebdomadaire
+            if not jours_selectionnes:
+                messages.error(request, "Veuillez sélectionner au moins un jour de la semaine.")
+                return render(request, 'owner/creneau_duplicate.html', {
+                    'terrain': terrain,
+                    'creneau': original_creneau,
+                    'jours': JOURS,
+                    'selected_jours': jours_selectionnes,
+                    'frequence': frequence,
+                    'duree': duree,
+                })
 
-            messages.success(request, f"{created_count} créneaux dupliqués avec succès sur {nb_jours} jours.")
+            # Convertir les jours sélectionnés en numéros
+            jours_numeros = []
+            for jour_str in jours_selectionnes:
+                for code, _, num in JOURS:
+                    if code == jour_str:
+                        jours_numeros.append(num)
+                        break
+
+            dates_a_creer = []
+            current_date = original_creneau.date + timedelta(days=1)
+            weeks_count = 0
+            max_days = duree * 7  # pour éviter boucle infinie
+
+            while weeks_count < duree and len(dates_a_creer) < max_days:
+                if current_date.weekday() in jours_numeros:
+                    dates_a_creer.append(current_date)
+                current_date += timedelta(days=1)
+                if current_date.weekday() == 0:  # Lundi = début de semaine
+                    weeks_count += 1
+
+        # Supprimer les doublons et les dates déjà existantes
+        dates_uniques = []
+        for d in dates_a_creer:
+            if not CreneauHoraire.objects.filter(
+                terrain=terrain,
+                date=d,
+                heure_debut=original_creneau.heure_debut
+            ).exists():
+                dates_uniques.append(d)
+
+        # Créer les créneaux
+        with transaction.atomic():
+            for d in dates_uniques:
+                CreneauHoraire.objects.create(
+                    terrain=terrain,
+                    date=d,
+                    heure_debut=original_creneau.heure_debut,
+                    heure_fin=original_creneau.heure_fin,
+                    tarif=original_creneau.tarif,
+                    disponible=True
+                )
+
+        messages.success(request, f"{len(dates_uniques)} créneaux créés avec succès.")
         return redirect('owner:creneau_list', terrain_id=terrain.id)
+
+    # Prévisualisation en GET
+    frequence = request.GET.get('frequence', 'quotidien')
+    duree_param = request.GET.get('duree')
+
+    try:
+        duree = int(duree_param) if duree_param else 7
+    except ValueError:
+        duree = 7
+    jours_selectionnes = request.GET.getlist('jours')
+
+    # Générer les dates de prévisualisation
+    dates_preview = []
+    if frequence == 'quotidien':
+        for i in range(1, duree + 1):
+            dates_preview.append(original_creneau.date + timedelta(days=i))
+    else:
+        jours_numeros = []
+        for jour_str in jours_selectionnes:
+            for code, _, num in JOURS:
+                if code == jour_str:
+                    jours_numeros.append(num)
+                    break
+
+        current_date = original_creneau.date + timedelta(days=1)
+        weeks_count = 0
+        while weeks_count < duree:
+            if current_date.weekday() in jours_numeros:
+                dates_preview.append(current_date)
+            current_date += timedelta(days=1)
+            if current_date.weekday() == 0:
+                weeks_count += 1
+
+        # Limiter la prévisualisation à 30 dates max
+        dates_preview = dates_preview[:30]
 
     return render(request, 'owner/creneau_duplicate.html', {
         'terrain': terrain,
-        'creneau': original_creneau
+        'creneau': original_creneau,
+        'jours': JOURS,
+        'selected_jours': jours_selectionnes,
+        'frequence': frequence,
+        'duree': duree,
+        'dates_preview': dates_preview,
     })

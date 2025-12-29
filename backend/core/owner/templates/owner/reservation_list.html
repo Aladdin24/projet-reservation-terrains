@@ -11,23 +11,28 @@
     <table class="table table-hover">
       <thead class="table-light">
         <tr>
+          <th>ID</th>
           <th>Terrain</th>
           <th>Date & Heure</th>
           <th>Utilisateur</th>
+          <th>Téléphone</th>
           <th>Type</th>
           <th>Statut</th>
           <th>Prix</th>
+          <th>Date réservation</th>
         </tr>
       </thead>
       <tbody>
         {% for resa in reservations %}
           <tr>
+            <td>{{ resa.id }}</td>
             <td>{{ resa.creneau.terrain.nom }}</td>
             <td>
               {{ resa.creneau.date }}<br>
               <small>{{ resa.creneau.heure_debut }} – {{ resa.creneau.heure_fin }}</small>
             </td>
-            <td>{{ resa.utilisateur.get_full_name }}</td>
+            <td>{{ resa.utilisateur.get_full_name|default:"-" }}</td>
+            <td>{{ resa.utilisateur.telephone }}</td>
             <td>
               {% if resa.type_reservation == "GROUPE" %}
                 <span class="badge bg-info">Groupe</span>
@@ -48,7 +53,8 @@
                 <span class="badge bg-warning">En attente</span>
               {% endif %}
             </td>
-            <td>{{ resa.prix_total }} €</td>
+            <td>{{ resa.prix_total }} MRU</td>
+            <td>{{ resa.date_creation|date:"d/m/Y H:i" }}</td>
           </tr>
         {% endfor %}
       </tbody>
