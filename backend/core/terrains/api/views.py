@@ -52,7 +52,10 @@ def terrain_list(request):
     serializer = TerrainSerializer(terrains, many=True, context={'request': request})
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-
+@extend_schema(
+    summary="Détail d’un terrain",
+    description="Retourne les détails d’un terrain spécifique.",
+)
 @api_view(['GET'])
 def terrain_detail(request, pk):
     """
@@ -67,7 +70,15 @@ def terrain_detail(request, pk):
         return Response({"error": "Terrain non trouvé"}, status=status.HTTP_404_NOT_FOUND)
     
 
-
+@extend_schema(
+    summary="Créer une évaluation",
+    description="Crée une évaluation pour un terrain.",
+    request=EvaluationCreateSerializer,
+    responses={
+        201: EvaluationSerializer,
+        400: {"description": "Données invalides"}
+    }
+)
 @api_view(['POST'])
 def create_evaluation(request):
     """

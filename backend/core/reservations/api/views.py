@@ -9,7 +9,17 @@ from django.utils import timezone
 from datetime import datetime, time
 from reservations.models import Reservation
 from terrains.models import CreneauHoraire
+from drf_spectacular.utils import extend_schema
 
+@extend_schema(
+    summary="Créer une réservation",
+    description="Crée une nouvelle réservation.",
+    request=ReservationCreateSerializer,
+    responses={
+        201: ReservationSerializer,
+        400: {"description": "Données invalides"}
+    }
+)
 @api_view(['POST'])
 def create_reservation(request):
     """
@@ -23,7 +33,10 @@ def create_reservation(request):
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+@extend_schema(
+    summary="Liste des réservations",
+    description="Retourne la liste des réservations de l’utilisateur connecté.",
+)
 @api_view(['GET'])
 def reservation_list(request):
     """
@@ -37,6 +50,10 @@ def reservation_list(request):
 
 
 
+@extend_schema(
+    summary="Annuler une réservation",
+    description="Annule une réservation existante.",
+)
 @api_view(['POST'])
 def cancel_reservation(request, reservation_id):
     """

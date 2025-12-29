@@ -172,6 +172,7 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'API Réservation Terrains',
     'DESCRIPTION': 'API backend pour l\'application mobile de réservation de terrains sportifs.',
     'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False, # Ne pas inclure le schéma brut dans /api/schema/
     'SCHEMA_PATH_PREFIX': '/api/',
     # Inclure les endpoints non authentifiés dans la doc
     'SERVE_PUBLIC': True,
