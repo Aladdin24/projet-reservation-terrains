@@ -40,7 +40,36 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
 
-
+@extend_schema(
+    summary="S'inscrire (Utilisateur Standard)",
+    description="Retourne l'information de l'utilisateur et les tokens JWT après une inscription réussie.",
+    request={"application/json": {"first_name": "string", "last_name": "string", "telephone": "string", "password": "string", "password2": "string"}},
+    examples=[
+        OpenApiExample(
+            'Exemple de requête',
+            value={
+                "first_name": "Jean",
+                "last_name": "Dupont",
+                "telephone": "0612345678",
+                "password": "motdepasse123",
+                "password2": "motdepasse123"
+            },
+            request_only=True,
+        )
+    ],
+    responses={
+        200: {
+            "type": "object",
+            "properties": {
+                "access": {"type": "string"},
+                "refresh": {"type": "string"},
+                "user_id": {"type": "integer"},
+                "telephone": {"type": "string"},
+            }
+        },
+        401: {"description": "Identifiants invalides"}
+    }
+)
 class RegisterView(APIView):
     permission_classes = []  # Pas besoin d’être authentifié
     authentication_classes = []
