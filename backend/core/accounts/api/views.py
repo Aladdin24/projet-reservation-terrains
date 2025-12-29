@@ -6,6 +6,36 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
+
+from drf_spectacular.utils import extend_schema, OpenApiExample
+
+@extend_schema(
+    summary="Se connecter (Utilisateur Standard)",
+    description="Retourne un token JWT si les identifiants sont valides.",
+    request={"application/json": {"telephone": "string", "password": "string"}},
+    examples=[
+        OpenApiExample(
+            'Exemple de requête',
+            value={
+                "telephone": "0612345678",
+                "password": "motdepasse123"
+            },
+            request_only=True,
+        )
+    ],
+    responses={
+        200: {
+            "type": "object",
+            "properties": {
+                "access": {"type": "string"},
+                "refresh": {"type": "string"},
+                "user_id": {"type": "integer"},
+                "telephone": {"type": "string"},
+            }
+        },
+        401: {"description": "Identifiants invalides"}
+    }
+)
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 

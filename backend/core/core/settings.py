@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -155,6 +156,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    # Spectacular comme générateur de schéma
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 # JWT
@@ -163,3 +166,22 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
+
+# Configuration de drf-spectacular
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'API Réservation Terrains',
+    'DESCRIPTION': 'API backend pour l\'application mobile de réservation de terrains sportifs.',
+    'VERSION': '1.0.0',
+    'SCHEMA_PATH_PREFIX': '/api/',
+    # Inclure les endpoints non authentifiés dans la doc
+    'SERVE_PUBLIC': True,
+
+    # ACTIVER LE BOUTON "AUTHORIZE" EN SWAGGER
+    'COMPONENT_SPLIT_REQUEST': True,  # Important pour les tokens dans le header
+    'SECURITY': [
+        {
+            'BearerAuth': []
+        }
+    ],
+}
+

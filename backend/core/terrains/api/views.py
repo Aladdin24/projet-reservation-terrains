@@ -3,9 +3,14 @@ from django.db.models import Q, Avg
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from terrains.models import Terrain
-from .serializers import TerrainSerializer
+from terrains.models import Terrain, Evaluation
+from .serializers import TerrainSerializer, EvaluationCreateSerializer, EvaluationSerializer
+from drf_spectacular.utils import extend_schema
 
+@extend_schema(
+    summary="Liste des terrains",
+    description="Retourne tous les terrains disponibles.",
+)
 @api_view(['GET'])
 def terrain_list(request):
     """
@@ -60,3 +65,17 @@ def terrain_detail(request, pk):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Terrain.DoesNotExist:
         return Response({"error": "Terrain non trouvé"}, status=status.HTTP_404_NOT_FOUND)
+    
+
+
+@api_view(['POST'])
+def create_evaluation(request):
+    """
+    Crée une évaluation pour un terrain.
+    """
+    serializer = EvaluationCreateSerializer(data=request.data, context={'request': request})
+    if serializer.is_valid():
+        evaluation = serializer.save()
+        output_serializer = EvaluationSerializer(evaluation)
+        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
