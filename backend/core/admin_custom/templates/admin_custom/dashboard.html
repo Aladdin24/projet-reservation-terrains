@@ -1,0 +1,99 @@
+<!-- admin_custom/templates/admin_custom/dashboard.html -->
+{% extends 'admin_custom/base.html' %}
+
+{% block title %}Tableau de bord Admin{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Tableau de bord Administration</h2>
+
+<div class="row">
+  <!-- Terrains -->
+  <div class="col-md-3">
+    <div class="card text-white bg-primary mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Terrains</h5>
+        <p class="card-text display-6">{{ stats.terrains_total }}</p>
+        {% if stats.terrains_a_valider > 0 %}
+          <a href="{% url 'admin_custom:terrain_list' %}?statut=attente" class="text-white">
+            ⚠️ {{ stats.terrains_a_valider }} en attente de validation
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Propriétaires -->
+<div class="col-md-3">
+  <div class="card text-white bg-success mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Propriétaires</h5>
+      <p class="card-text display-6">{{ stats.proprietaires }}</p>
+      <a href="{% url 'admin_custom:user_list' %}?role=PROPRIETAIRE" class="text-white">
+        ➡️ Gérer
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Utilisateurs Standards -->
+<div class="col-md-3">
+  <div class="card text-white bg-info mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Utilisateurs</h5>
+      <p class="card-text display-6">{{ stats.utilisateurs_standards }}</p>
+      <a href="{% url 'admin_custom:user_list' %}?role=STANDARD" class="text-white">
+        ➡️ Voir
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Évaluations -->
+<div class="col-md-3">
+  <div class="card text-white bg-warning mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Évaluations</h5>
+      <p class="card-text display-6">{{ stats.evaluations }}</p>
+      <a href="{% url 'admin_custom:evaluation_list' %}" class="text-white">
+        ➡️ Modérer
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5>Actions rapides</h5>
+      </div>
+      <div class="card-body">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+          <a href="{% url 'admin_custom:terrain_list' %}?statut=attente" class="btn btn-warning">
+            🔍 Valider les terrains en attente ({{ stats.terrains_a_valider }})
+          </a>
+          <a href="{% url 'admin_custom:terrain_list' %}" class="btn btn-outline-primary">
+            🏟️ Tous les terrains
+          </a>
+          <a href="{% url 'admin_custom:reservation_list' %}" class="btn btn-outline-secondary">
+            📅 Toutes les réservations
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <div class="col-12">
+    <div class="alert alert-light">
+      <h6>💡 Conseils d'administration</h6>
+      <ul>
+        <li>Les nouveaux terrains doivent être <strong>validés</strong> avant d’être visibles par les utilisateurs.</li>
+        <li>Utilisez l’<strong>interface d’admin Django</strong> (liens ci-dessus) pour gérer les détails techniques.</li>
+        <li>Surveillez les évaluations avec des commentaires inappropriés.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+<!-- admin_custom/templates/admin_custom/evaluation_list.html -->
+{% extends 'admin_custom/base.html' %}
+
+{% block content %}
+<h2>Modération des évaluations</h2>
+
+{% if evaluations %}
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>Terrain</th>
+          <th>Utilisateur</th>
+          <th>Note</th>
+          <th>Commentaire</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in evaluations %}
+          <tr>
+            <td>{{ e.terrain.nom }}</td>
+            <td>{{ e.utilisateur.telephone }}</td>
+            <td>
+              <span class="badge bg-warning">{{ e.note }}/5</span>
+            </td>
+            <td>{{ e.commentaire|truncatewords:10|default:"—"}}</td>
+            <td>{{ e.date_creation|date:"d/m/Y H:i" }}</td>
+            <td>
+              <form method="post" action="{% url 'admin_custom:evaluation_delete' e.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger"
+                        onclick="return confirm('Supprimer cette évaluation ?')">
+                  Supprimer
+                </button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="alert alert-info">Aucune évaluation.</div>
+{% endif %}
+{% endblock %}

@@ -19,6 +19,10 @@ class ReservationCreateSerializer(serializers.Serializer):
         except CreneauHoraire.DoesNotExist:
             raise serializers.ValidationError("Créneau introuvable.")
         
+        # Vérifier que le terrain est validé
+        if not creneau.terrain.valide:
+            raise serializers.ValidationError("Ce terrain n’est pas encore validé par l’administrateur.")
+        
         if not creneau.disponible:
             raise serializers.ValidationError("Ce créneau n’est plus disponible.")
         

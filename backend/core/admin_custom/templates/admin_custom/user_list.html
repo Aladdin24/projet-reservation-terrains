@@ -1,0 +1,46 @@
+<!-- admin_custom/templates/admin_custom/user_list.html -->
+{% extends 'admin_custom/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>{{ title }}</h2>
+  <a href="{% url 'admin_custom:user_list' %}" class="btn btn-outline-secondary">Tous les utilisateurs</a>
+</div>
+
+{% if users %}
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Nom complet</th>
+          <th>Téléphone</th>
+          <th>Type</th>
+          <th>Date d'inscription</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+          <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.get_full_name|default:"—" }}</td>
+            <td>{{ u.telephone }}</td>
+            <td>
+              {% if u.type_utilisateur == "ADMIN" %}
+                <span class="badge bg-danger">Admin</span>
+              {% elif u.type_utilisateur == "PROPRIETAIRE" %}
+                <span class="badge bg-success">Propriétaire</span>
+              {% else %}
+                <span class="badge bg-info">Standard</span>
+              {% endif %}
+            </td>
+            <td>{{ u.date_joined|date:"d/m/Y H:i" }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="alert alert-info">Aucun utilisateur trouvé.</div>
+{% endif %}
+{% endblock %}

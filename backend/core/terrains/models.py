@@ -14,6 +14,8 @@ class Terrain(models.Model):
     )
     image_url = models.URLField(blank=True)
     note_moyenne = models.FloatField(default=0.0)
+    valide = models.BooleanField(default=False, verbose_name="Validé par l'admin")
+    date_validation = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.nom

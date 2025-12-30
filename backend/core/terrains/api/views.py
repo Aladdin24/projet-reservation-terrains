@@ -8,8 +8,8 @@ from .serializers import TerrainSerializer, EvaluationCreateSerializer, Evaluati
 from drf_spectacular.utils import extend_schema
 
 @extend_schema(
-    summary="Liste des terrains",
-    description="Retourne tous les terrains disponibles.",
+    summary="Liste des terrains validés",
+    description="Retourne uniquement les terrains validés par l'administrateur.",
 )
 @api_view(['GET'])
 def terrain_list(request):
@@ -21,14 +21,15 @@ def terrain_list(request):
     """
     from django.db import connection
 
-    terrains = Terrain.objects.prefetch_related('creneaux', 'evaluations').all()
+    # Seulement les terrains validés
+    terrains = Terrain.objects.filter(valide=True).prefetch_related('creneaux', 'evaluations')
 
     # Filtre par date de disponibilité
     disponible_le = request.query_params.get('disponible_le')
     if disponible_le:
         terrains = terrains.filter(
             creneaux__date=disponible_le,
-            creneaux__disponible=True
+            creneaux__disponible=True,
         ).distinct()
 
     # Calcul de la note moyenne (déjà dans le modèle, mais on s'assure)
@@ -62,7 +63,7 @@ def terrain_detail(request, pk):
     Détail d’un terrain spécifique.
     """
     try:
-        terrain = Terrain.objects.prefetch_related('creneaux', 'evaluations').get(pk=pk)
+        terrain = Terrain.objects.filter(valide=True).prefetch_related('creneaux', 'evaluations').get(pk=pk)
         terrain.note_moyenne = terrain.evaluations.aggregate(avg=Avg('note'))['avg'] or 0.0
         serializer = TerrainSerializer(terrain, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)

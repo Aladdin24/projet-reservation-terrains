@@ -10,7 +10,7 @@ urlpatterns = [
     
     # Web interfaces
     path('owner/', include('owner.urls')),
-    # path('admin-panel/', include('admin_custom.urls')),
+    path('admin-panel/', include('admin_custom.urls')),
     
     # API
     path('api/auth/', include('accounts.api.urls')),
