@@ -24,8 +24,29 @@ SECRET_KEY = 'django-insecure-280cbsub#(9njudo4+^*g7o^wxyyh)jy5vtepn6j34h=vxt0ae
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = []
+# CORS - Pour Flutter mobile (développement)
+CORS_ALLOW_ALL_ORIGINS = True  # ✅ Autorise toutes les origines en dev
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -97,18 +118,18 @@ DATABASES = {
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    # },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    # },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    # },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    # },
 ]
 
 
@@ -137,12 +158,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #-------------------------------Mon Configuration-------------------------------#
 
 # Autoriser Flutter en développement
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:4200",      # Flutter Web
-    "http://127.0.0.1:4200",
-    "http://10.0.2.2:4200",       # Android Emulator
-    "http://192.168.1.10:4200",   # Remplacez par votre IP locale si besoin
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:8000",
+#     "http://127.0.0.1:8000",
+#     "http://192.168.100.127:8000",  # ✅ Port 8000 (votre backend)
+# ]
 
 
 # Authentification custom
