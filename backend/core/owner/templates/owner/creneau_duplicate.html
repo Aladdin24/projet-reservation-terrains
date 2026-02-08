@@ -1,0 +1,100 @@
+<!-- owner/templates/owner/creneau_duplicate.html -->
+{% extends 'owner/base.html' %}
+
+{% block title %}Dupliquer le créneau{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card shadow">
+      <div class="card-header bg-info text-white">
+        <h4 class="mb-0">Dupliquer le créneau</h4>
+      </div>
+      <div class="card-body">
+        <p><strong>Créneau original :</strong></p>
+        <ul class="list-group mb-4">
+          <li class="list-group-item">Terrain : {{ terrain.nom }}</li>
+          <li class="list-group-item">Date : {{ creneau.date }}</li>
+          <li class="list-group-item">Heure : {{ creneau.heure_debut }} – {{ creneau.heure_fin }}</li>
+          <li class="list-group-item">Tarif : {{ creneau.tarif }} MRU</li>
+        </ul>
+
+        <form method="get" id="previewForm" class="mb-4">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Fréquence</label>
+                <select name="frequence" class="form-control" onchange="this.form.submit()">
+                  <option value="quotidien" {% if frequence == "quotidien" %}selected{% endif %}>Quotidien</option>
+                  <option value="hebdomadaire" {% if frequence == "hebdomadaire" %}selected{% endif %}>Hebdomadaire</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">
+                  {% if frequence == "quotidien" %}Nombre de jours{% else %}Nombre de semaines{% endif %}
+                </label>
+                <input type="number" name="duree" class="form-control" min="1" max="30" value="{{ duree }}" onchange="this.form.submit()">
+              </div>
+            </div>
+          </div>
+
+          {% if frequence == "hebdomadaire" %}
+            <div class="mb-3">
+              <label class="form-label">Jours de la semaine</label>
+              <div>
+                {% for code, label, num in jours %}
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="jours" value="{{ code }}" 
+                      id="jour_{{ code }}" {% if code in selected_jours %}checked{% endif %} onchange="this.form.submit()">
+                    <label class="form-check-label" for="jour_{{ code }}">{{ label }}</label>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+        </form>
+
+        {% if dates_preview %}
+          <h5>Prévisualisation des dates à créer :</h5>
+          <ul class="list-group mb-4">
+            {% for date in dates_preview %}
+              <li class="list-group-item">{{ date }}</li>
+            {% endfor %}
+            {% if dates_preview|length > 30 %}
+              <li class="list-group-item text-muted">... et {{ dates_preview|length|add:"-30" }} autres dates</li>
+            {% endif %}
+          </ul>
+        {% else %}
+          <div class="alert alert-info">Sélectionnez des paramètres pour voir la prévisualisation.</div>
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="frequence" value="{{ frequence }}">
+          <input type="hidden" name="duree" value="{{ duree }}">
+          {% for jour in selected_jours %}
+            <input type="hidden" name="jours" value="{{ jour }}">
+          {% endfor %}
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success">Confirmer la duplication ({{ dates_preview|length }} créneaux)</button>
+            <a href="{% url 'owner:creneau_list' terrain.id %}" class="btn btn-secondary">Annuler</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Empêche la soumission multiple
+  document.querySelectorAll('form[method="post"]').forEach(form => {
+    form.addEventListener('submit', () => {
+      const btn = form.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = 'Création en cours...';
+    });
+  });
+</script>
+{% endblock %}

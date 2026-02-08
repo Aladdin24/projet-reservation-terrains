@@ -1,0 +1,74 @@
+<!-- admin_custom/templates/admin_custom/reservation_list.html -->
+{% extends 'admin_custom/base.html' %}
+
+{% block title %}Toutes les Réservations{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>Toutes les Réservations</h2>
+  <div>
+    <a href="?statut=PAYEE" class="btn btn-success btn-sm">Payées</a>
+    <a href="?statut=REMBOURSEE" class="btn btn-danger btn-sm">Annulées</a>
+    <a href="." class="btn btn-outline-secondary btn-sm">Toutes</a>
+  </div>
+</div>
+
+{% if reservations %}
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Terrain</th>
+          <th>Propriétaire</th>
+          <th>Utilisateur</th>
+          <th>Téléphone</th>
+          <th>Date & Heure</th>
+          <th>Type</th>
+          <th>Statut</th>
+          <th>Date réservation</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for resa in reservations %}
+          <tr>
+            <td>{{ resa.id }}</td>
+            <td>{{ resa.creneau.terrain.nom }}</td>
+            <td>{{ resa.creneau.terrain.proprietaire.telephone }}</td>
+            <td>{{ resa.utilisateur.get_full_name|default:"—" }}</td>
+            <td>{{ resa.utilisateur.telephone }}</td>
+            <td>
+              {{ resa.creneau.date }}<br>
+              <small>{{ resa.creneau.heure_debut }} – {{ resa.creneau.heure_fin }}</small>
+            </td>
+            <td>
+              {% if resa.type_reservation == "GROUPE" %}
+                <span class="badge bg-info">Groupe</span>
+              {% elif resa.type_reservation == "ORGANISATION" %}
+                <span class="badge bg-warning">Organisation</span>
+              {% else %}
+                <span class="badge bg-secondary">Individuel</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if resa.statut == "PAYEE" %}
+                <span class="badge bg-success">Payée</span>
+              {% elif resa.statut == "CONFIRMEE" %}
+                <span class="badge bg-primary">Confirmée</span>
+              {% elif resa.statut == "ANNULEE" or resa.statut == "REMBOURSEE" %}
+                <span class="badge bg-danger">Annulée</span>
+              {% else %}
+                <span class="badge bg-warning">En attente</span>
+              {% endif %}
+            </td>
+            
+            <td>{{ resa.date_creation|date:"d/m/Y H:i" }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="alert alert-info">Aucune réservation trouvée.</div>
+{% endif %}
+{% endblock %}

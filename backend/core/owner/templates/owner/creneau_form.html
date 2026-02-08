@@ -1,0 +1,45 @@
+<!-- owner/templates/owner/creneau_form.html -->
+{% extends 'owner/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">{{ title }} – {{ terrain.nom }}</h4>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="{{ form.date.id_for_label }}" class="form-label">Date</label>
+            {{ form.date }}
+            {% if form.date.errors %}<div class="text-danger">{{ form.date.errors }}</div>{% endif %}
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.heure_debut.id_for_label }}" class="form-label">Heure de début</label>
+            {{ form.heure_debut }}
+            {% if form.heure_debut.errors %}<div class="text-danger">{{ form.heure_debut.errors }}</div>{% endif %}
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.heure_fin.id_for_label }}" class="form-label">Heure de fin</label>
+            {{ form.heure_fin }}
+            {% if form.heure_fin.errors %}<div class="text-danger">{{ form.heure_fin.errors }}</div>{% endif %}
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.tarif.id_for_label }}" class="form-label">Tarif (MRU)</label>
+            {{ form.tarif }}
+            {% if form.tarif.errors %}<div class="text-danger">{{ form.tarif.errors }}</div>{% endif %}
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+            <a href="{% url 'owner:creneau_list' terrain.id %}" class="btn btn-secondary">Annuler</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

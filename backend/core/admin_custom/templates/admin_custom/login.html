@@ -1,0 +1,29 @@
+<!-- admin_custom/templates/admin_custom/login.html -->
+{% extends 'admin_custom/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header bg-dark text-white">
+        <h4 class="mb-0">Connexion Admin</h4>
+      </div>
+      <div class="card-body">
+        {% if error %}
+          <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <input type="text" name="telephone" class="form-control" placeholder="Numéro de téléphone" required>
+          </div>
+          <div class="mb-3">
+            <input type="password" name="password" class="form-control" placeholder="Mot de passe" required>
+          </div>
+          <button type="submit" class="btn btn-dark w-100">Se connecter</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

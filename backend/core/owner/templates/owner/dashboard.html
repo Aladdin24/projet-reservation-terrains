@@ -1,0 +1,271 @@
+<!-- owner/templates/owner/dashboard.html -->
+{% extends 'owner/base.html' %}
+
+{% block title %}Dashboard Propriétaire{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Dashboard</li>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- KPI Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="dashboard-card">
+                <div class="card-icon bg-gradient-primary text-white">
+                    <i class="bi bi-map"></i>
+                </div>
+                <h3 class="display-6 fw-bold text-gradient">{{ terrains_count }}</h3>
+                <p class="text-muted mb-3">Terrains gérés</p>
+                <a href="{% url 'owner:terrain_list' %}" class="btn btn-outline-primary d-flex align-items-center">
+                    <i class="bi bi-gear me-2"></i>
+                    Gérer mes terrains
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="dashboard-card">
+                <div class="card-icon bg-success text-white" style="background: linear-gradient(135deg, #20c997 0%, #12a185 100%);">
+                    <i class="bi bi-calendar-check"></i>
+                </div>
+                <h3 class="display-6 fw-bold text-gradient">{{ reservations_count }}</h3>
+                <p class="text-muted mb-3">Réservations reçues</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge bg-success">{{ confirmed_reservations|default:0 }} confirmées</span>
+                    <a href="{% url 'owner:reservation_list' %}" class="btn btn-outline-success btn-sm">
+                        <i class="bi bi-eye me-1"></i>Voir
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="dashboard-card">
+                <div class="card-icon bg-warning text-white" style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+                <h3 class="display-6 fw-bold text-gradient">{{ gains|floatformat:2 }} <small class="fs-6">MRU</small></h3>
+                <p class="text-muted mb-3">Gains totaux</p>
+                <div class="d-flex justify-content-between">
+                    <span class="text-success small">
+                        <i class="bi bi-arrow-up"></i> +12.5%
+                    </span>
+                    <span class="text-muted small">Ce mois</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="dashboard-card">
+                <div class="card-icon bg-info text-white" style="background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%);">
+                    <i class="bi bi-people"></i>
+                </div>
+                <h3 class="display-6 fw-bold text-gradient">{{ clients_count|default:0 }}</h3>
+                <p class="text-muted mb-3">Clients actifs</p>
+                <div class="progress" style="height: 6px;">
+                    <div class="progress-bar bg-info" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Two Columns Layout -->
+    <div class="row g-4">
+        <!-- Left Column -->
+        <div class="col-xl-8">
+            <!-- Recent Reservations -->
+            <div class="dashboard-card mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history text-primary me-2"></i>
+                        Réservations récentes
+                    </h5>
+                    <a href="{% url 'owner:reservation_list' %}" class="btn btn-link text-decoration-none">
+                        Voir tout <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+                
+                {% if recent_reservations %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Client</th>
+                                <th>Terrain</th>
+                                <th>Date</th>
+                                <th>Créneau</th>
+                                <th>Statut</th>
+                                <th>Montant</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reservation in recent_reservations %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm bg-light rounded-circle d-flex align-items-center justify-content-center me-2">
+                                            <i class="bi bi-person text-primary"></i>
+                                        </div>
+                                        {{ reservation.client.username|default:"Client" }}
+                                    </div>
+                                </td>
+                                <td>{{ reservation.terrain.nom|truncatechars:20 }}</td>
+                                <td>{{ reservation.date|date:"d/m/Y" }}</td>
+                                <td>{{ reservation.creneau.heure_debut|time:"H:i" }} - {{ reservation.creneau.heure_fin|time:"H:i" }}</td>
+                                <td>
+                                    {% if reservation.status == 'confirmed' %}
+                                    <span class="status-badge status-confirmed">
+                                        <i class="bi bi-check-circle me-1"></i>Confirmée
+                                    </span>
+                                    {% elif reservation.status == 'pending' %}
+                                    <span class="status-badge status-pending">
+                                        <i class="bi bi-clock me-1"></i>En attente
+                                    </span>
+                                    {% else %}
+                                    <span class="status-badge status-cancelled">
+                                        <i class="bi bi-x-circle me-1"></i>Annulée
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td class="fw-bold">{{ reservation.montant|floatformat:2 }} MRU</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="bi bi-calendar-x display-1 text-muted"></i>
+                    </div>
+                    <h5 class="text-muted">Aucune réservation récente</h5>
+                    <p class="text-muted">Vos réservations apparaîtront ici</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            
+        </div>
+        
+        <!-- Right Column -->
+        <div class="col-xl-4">
+            <!-- Quick Actions -->
+            <div class="dashboard-card mb-4">
+                <h5 class="mb-4">
+                    <i class="bi bi-lightning text-warning me-2"></i>
+                    Actions rapides
+                </h5>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'owner:terrain_add' %}" class="btn btn-primary d-flex align-items-center justify-content-between py-3">
+                        <span>
+                            <i class="bi bi-plus-circle me-2"></i>
+                            Ajouter un terrain
+                        </span>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                    <a href="" class="btn btn-outline-primary d-flex align-items-center justify-content-between py-3">
+                        <span>
+                            <i class="bi bi-clock me-2"></i>
+                            Créer un créneau
+                        </span>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-success d-flex align-items-center justify-content-between py-3">
+                        <span>
+                            <i class="bi bi-cash-coin me-2"></i>
+                            Voir les paiements
+                        </span>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                    
+                </div>
+            </div>
+            
+            
+            
+            
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-sm {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .chart-placeholder {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .chart-placeholder::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent 48%, rgba(255,255,255,0.3) 50%, transparent 52%);
+        background-size: 200% 200%;
+        animation: shimmer 2s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+    
+    .timeline-item {
+        position: relative;
+        padding-left: 10px;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 20px;
+        bottom: -20px;
+        width: 2px;
+        background: #e9ecef;
+    }
+    
+    .timeline-item:last-child::before {
+        display: none;
+    }
+    
+    .table th {
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .table td {
+        vertical-align: middle;
+    }
+    
+    .btn-link {
+        color: var(--primary-color);
+        font-weight: 500;
+    }
+    
+    .btn-link:hover {
+        color: var(--secondary-color);
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des cartes au chargement
+    const cards = document.querySelectorAll('.dashboard-card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+    });
+});
+</script>
+{% endblock %}

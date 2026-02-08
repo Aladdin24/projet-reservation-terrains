@@ -1,0 +1,66 @@
+<!-- owner/templates/owner/reservation_list.html -->
+{% extends 'owner/base.html' %}
+
+{% block title %}Réservations Reçues{% endblock %}
+
+{% block content %}
+<h2>Réservations Reçues</h2>
+
+{% if reservations %}
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Terrain</th>
+          <th>Date & Heure</th>
+          <th>Utilisateur</th>
+          <th>Téléphone</th>
+          <th>Type</th>
+          <th>Statut</th>
+          <th>Prix</th>
+          <th>Date réservation</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for resa in reservations %}
+          <tr>
+            <td>{{ resa.id }}</td>
+            <td>{{ resa.creneau.terrain.nom }}</td>
+            <td>
+              {{ resa.creneau.date }}<br>
+              <small>{{ resa.creneau.heure_debut }} – {{ resa.creneau.heure_fin }}</small>
+            </td>
+            <td>{{ resa.utilisateur.get_full_name|default:"-" }}</td>
+            <td>{{ resa.utilisateur.telephone }}</td>
+            <td>
+              {% if resa.type_reservation == "GROUPE" %}
+                <span class="badge bg-info">Groupe</span>
+              {% elif resa.type_reservation == "ORGANISATION" %}
+                <span class="badge bg-warning">Organisation</span>
+              {% else %}
+                <span class="badge bg-secondary">Individuel</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if resa.statut == "PAYEE" %}
+                <span class="badge bg-success">Payée</span>
+              {% elif resa.statut == "CONFIRMEE" %}
+                <span class="badge bg-primary">Confirmée</span>
+              {% elif resa.statut == "ANNULEE" or resa.statut == "REMBOURSEE" %}
+                <span class="badge bg-danger">Annulée</span>
+              {% else %}
+                <span class="badge bg-warning">En attente</span>
+              {% endif %}
+            </td>
+            <td>{{ resa.prix_total }} MRU</td>
+            <td>{{ resa.date_creation|date:"d/m/Y H:i" }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="alert alert-info">Aucune réservation pour le moment.</div>
+{% endif %}
+{% endblock %}

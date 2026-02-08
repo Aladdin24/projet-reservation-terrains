@@ -1,0 +1,37 @@
+<!-- admin_custom/templates/admin_custom/terrain_detail.html -->
+{% extends 'admin_custom/base.html' %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-8">
+    <h2>{{ terrain.nom }}</h2>
+    <p><strong>Propriétaire :</strong> {{ terrain.proprietaire.get_full_name }} ({{ terrain.proprietaire.telephone }})</p>
+    <p><strong>Adresse :</strong> {{ terrain.adresse }}</p>
+    <p><strong>Coordonnées :</strong> {{ terrain.latitude }}, {{ terrain.longitude }}</p>
+    {% if terrain.image_url %}
+      <img src="{{ terrain.image_url }}" class="img-fluid" alt="Terrain">
+    {% endif %}
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        Validation
+      </div>
+      <div class="card-body">
+        {% if not terrain.valide %}
+          <form method="post">
+            {% csrf_token %}
+            <button name="action" value="valider" class="btn btn-success w-100 mb-2">✅ Valider le terrain</button>
+            <button name="action" value="rejeter" class="btn btn-danger w-100" 
+                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce terrain ?')">❌ Rejeter</button>
+          </form>
+        {% else %}
+          <p class="text-success">✅ Ce terrain est validé depuis {{ terrain.date_validation|date:"d/m/Y H:i" }}.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<a href="{% url 'admin_custom:terrain_list' %}" class="btn btn-secondary mt-3">← Retour à la liste</a>
+{% endblock %}
